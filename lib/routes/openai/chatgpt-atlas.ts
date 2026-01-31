@@ -7,9 +7,9 @@ import cache from '@/utils/cache';
 import ofetch from '@/utils/ofetch';
 
 export const route: Route = {
-    path: '/chatgpt/release-notes',
+    path: '/chatgpt-atlas/release-notes',
     categories: ['program-update'],
-    example: '/openai/chatgpt/release-notes',
+    example: '/openai/chatgpt-atlas/release-notes',
     features: {
         requireConfig: false,
         requirePuppeteer: false,
@@ -18,19 +18,18 @@ export const route: Route = {
         supportPodcast: false,
         supportScihub: false,
     },
-    name: 'ChatGPT - Release Notes',
+    name: 'ChatGPT Atlas - Release Notes',
     maintainers: ['xbot'],
     handler,
 };
 
 async function handler() {
-    const articleUrl = 'https://help.openai.com/en/articles/6825453-chatgpt-release-notes';
+    const articleUrl = 'https://help.openai.com/en/articles/12591856-chatgpt-atlas-release-notes';
 
     const cacheIn = await cache.tryGet(
         articleUrl,
         async () => {
             const response = await ofetch(articleUrl);
-
             const $ = load(response);
             const articleContent = $('.article-content');
 
@@ -39,7 +38,7 @@ async function handler() {
             }
 
             const feedTitle = $('h1').first().text();
-            const feedDesc = 'ChatGPT Release Notes';
+            const feedDesc = 'ChatGPT Atlas Release Notes';
 
             const items = $('h1', articleContent)
                 .toArray()
@@ -57,13 +56,8 @@ async function handler() {
                         }
                     }
 
-                    const $nextSiblings = $h1.nextUntil('h1');
-                    const $firstH2 = $nextSiblings.filter('h2').first();
-                    const firstH2Text = $firstH2.text().trim();
-
-                    const title = firstH2Text || text;
-
-                    const content = $nextSiblings
+                    const content = $h1
+                        .nextUntil('h1')
                         .toArray()
                         .map((el) => $(el).prop('outerHTML'))
                         .join('');
@@ -71,7 +65,7 @@ async function handler() {
 
                     return {
                         guid: `${articleUrl}#${pubDate ? pubDate.getTime() : text}`,
-                        title,
+                        title: text,
                         link: articleUrl,
                         pubDate,
                         description,
